@@ -66,12 +66,13 @@ namespace microservices_crud.Controllers
         {
             var numIds = ids.Split(',').Select(id => (Ok: int.TryParse(id, out int x), Value: x));
 
-            if (!numIds.All(nid => nid.Ok))
+            var valueTuples = numIds as (bool Ok, int Value)[] ?? numIds.ToArray();
+            if (!valueTuples.All(nid => nid.Ok))
             {
                 return new List<CatalogItem>();
             }
 
-            var idsToSelect = numIds.Select(id => id.Value);
+            var idsToSelect = valueTuples.Select(id => id.Value);
 
             var items = await _catalogContext.CatalogItems.Where(item => idsToSelect.Contains(item.Id)).ToListAsync();
 
